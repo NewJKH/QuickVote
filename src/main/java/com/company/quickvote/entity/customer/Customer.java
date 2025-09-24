@@ -29,18 +29,18 @@ public class Customer {
 	@Column(name = "ctm_name")
 	private String name;
 
-	@Column(name = "ctm_email")
+	@Column(nullable = false,name = "ctm_email")
 	private String email;
 
-	@Column(name = "ctm_pwd")
+	@Column(nullable = false,name = "ctm_pwd")
 	private String pwd;
 
 	@CreatedDate
-	@Column(name = "ctm_created_at")
+	@Column(nullable = false, name = "ctm_created_at")
 	private LocalDateTime createAt;
 
 	@LastModifiedDate
-	@Column(name = "ctm_updated_at")
+	@Column(nullable = false, name = "ctm_updated_at")
 	private LocalDateTime updatedAt;
 
 	public Customer(String name, String email, String password) {
