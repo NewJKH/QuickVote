@@ -1,10 +1,13 @@
 package com.company.quickvote.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.company.quickvote.dto.request.StockRegisterRequest;
 import com.company.quickvote.dto.response.StockRegisterResponse;
+import com.company.quickvote.dto.response.StockResponse;
 import com.company.quickvote.entity.company.Company;
 import com.company.quickvote.entity.customer.Customer;
 import com.company.quickvote.entity.customerstock.CustomerStock;
@@ -39,5 +42,17 @@ public class CustomerStockService {
 			customerStock.getCompany().getId(),
 			customerStock.getShares()
 		);
+	}
+
+	@Transactional(readOnly = true)
+	public List<StockResponse> findListById(long customerId) {
+		return stockJPARepository.findAllByCustomer_Id(customerId).stream()
+			.map(stock -> new StockResponse(
+				stock.getId(),
+				stock.getCompany().getId(),
+				stock.getCompany().getName(),
+				stock.getShares()
+			))
+			.toList();
 	}
 }
