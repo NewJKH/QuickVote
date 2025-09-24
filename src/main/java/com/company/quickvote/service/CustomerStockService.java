@@ -55,4 +55,10 @@ public class CustomerStockService {
 			))
 			.toList();
 	}
+
+	@Transactional
+	public Boolean deleteStock(Long stockId) {
+		stockJPARepository.deleteById(stockId);
+		return true;
+	}
 }
