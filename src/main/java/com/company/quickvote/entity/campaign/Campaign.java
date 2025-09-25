@@ -62,4 +62,12 @@ public class Campaign {
 	@JoinColumn(name = "cp_id", nullable = false)
 	private Company company;
 
+	public Campaign(String title, String description, LocalDateTime startDate, LocalDateTime endDate, Status status, Company company) {
+		this.title = title;
+		this.description = description;
+		this.status = status;
+		this.startAt = startDate;
+		this.endAt = endDate;
+		this.company = company;
+	}
 }
