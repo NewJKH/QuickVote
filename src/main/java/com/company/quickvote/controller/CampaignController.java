@@ -36,6 +36,14 @@ public class CampaignController {
 			.status(200)
 			.body(campaignService.findById(campaignId));
 	}
+	//TODO : 내 정보 : JWT 안에 포함되어 있으므로 일단 패스
+	// @GetMapping("/campaigns/me")
+	// public ResponseEntity<CampaignResponse> findCampaignById(){
+	// 	return ResponseEntity
+	// 		.status(200)
+	// 		.body(campaignService.findById(campaignId));
+	// }
+
 	//TODO : 제안자 : 로그인 한 유저이므로 Auth 준비 후 추가
 	@PostMapping("/campaigns")
 	public ResponseEntity<CampaignResponse> createCampaign(@RequestBody CampaignCreateRequest request){
