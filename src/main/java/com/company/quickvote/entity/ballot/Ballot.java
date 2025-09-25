@@ -67,4 +67,11 @@ public class Ballot {
 	@JoinColumn(name = "cam_id", nullable = false)
 	private Campaign campaign;
 
+	public Ballot(int shares, VoteType voteType, VoteChoice voteChoice, long delegateId, Campaign campaign) {
+		this.shares = shares;
+		this.voteType = voteType;
+		this.voteChoice = voteChoice;
+		this.delegateToId = delegateId;
+		this.campaign = campaign;
+	}
 }
