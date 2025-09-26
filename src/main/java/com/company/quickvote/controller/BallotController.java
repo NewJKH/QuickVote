@@ -12,15 +12,23 @@ import com.company.quickvote.dto.request.BallotCreateRequest;
 import com.company.quickvote.dto.response.BallotCreateResponse;
 import com.company.quickvote.service.BallotService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "투표/위임", description = "투표위윔 API")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class BallotController {
 
 	private final BallotService ballotService;
-
+	@Operation(summary = "의결권 등록", description = "의결권을 등록 합니다.")
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "성공적으로 기업이 조회되었습니다."),
+	})
 	@PostMapping("/ballots")
 	public ResponseEntity<BallotCreateResponse> save(@RequestBody BallotCreateRequest request){
 		return ResponseEntity
@@ -28,7 +36,6 @@ public class BallotController {
 			.body(ballotService.save(request));
 	}
 	// TODO : 내 투표 위임 내역 조회
-
 	@DeleteMapping("/ballots/{ballotId}")
 	public Boolean delete(@PathVariable("ballotId") long ballotId){
 		return ballotService.delete(ballotId);
