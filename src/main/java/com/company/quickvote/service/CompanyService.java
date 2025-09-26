@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.company.quickvote.dto.response.CompanyResponse;
 import com.company.quickvote.entity.company.Company;
+import com.company.quickvote.global.exception.NotFoundException;
 import com.company.quickvote.repository.CompanyJPARepository;
 
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class CompanyService {
 	@Transactional(readOnly = true)
 	public CompanyResponse findById(long id){
 		Company company = companyJPARepository.findById(id)
-			.orElseThrow(()-> new IllegalArgumentException(" 일치하는 기업이 존재하지 않습니다. "));
+			.orElseThrow(()-> new NotFoundException("기업"));
 
 		return new CompanyResponse(
 			company.getId(),

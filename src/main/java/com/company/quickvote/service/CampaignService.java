@@ -11,6 +11,7 @@ import com.company.quickvote.dto.response.CampaignResponse;
 import com.company.quickvote.entity.campaign.Campaign;
 import com.company.quickvote.entity.campaign.Status;
 import com.company.quickvote.entity.company.Company;
+import com.company.quickvote.global.exception.NotFoundException;
 import com.company.quickvote.repository.CampaignJPARepository;
 import com.company.quickvote.repository.CompanyJPARepository;
 
@@ -40,7 +41,7 @@ public class CampaignService {
 	@Transactional(readOnly = true)
 	public CampaignResponse findById(Long campaignId) {
 		Campaign campaign = campaignJPARepository.findById(campaignId)
-			.orElseThrow(()->new IllegalArgumentException("캠페인을 찾을 수 없습니다."));
+			.orElseThrow(()->new NotFoundException("캠페인"));
 
 		return new CampaignResponse(
 			campaign.getId(),
@@ -56,7 +57,7 @@ public class CampaignService {
 	@Transactional
 	public CampaignResponse save(CampaignCreateRequest request) {
 		Company company = companyJPARepository.findById(request.getCompanyId())
-			.orElseThrow(()->new IllegalArgumentException("기업을 찾을 수 없습니다."));
+			.orElseThrow(()->new NotFoundException("기업"));
 
 		Campaign campaign = new Campaign(
 			request.getTitle(),

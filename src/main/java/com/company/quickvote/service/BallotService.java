@@ -7,6 +7,7 @@ import com.company.quickvote.dto.request.BallotCreateRequest;
 import com.company.quickvote.dto.response.BallotCreateResponse;
 import com.company.quickvote.entity.ballot.Ballot;
 import com.company.quickvote.entity.campaign.Campaign;
+import com.company.quickvote.global.exception.NotFoundException;
 import com.company.quickvote.repository.BallotJPARepository;
 import com.company.quickvote.repository.CampaignJPARepository;
 
@@ -23,7 +24,7 @@ public class BallotService {
 	public BallotCreateResponse save(BallotCreateRequest ballotCreateRequest) {
 
 		Campaign campaign = campaignJPARepository.findById(ballotCreateRequest.getCampaignId())
-			.orElseThrow(()->new IllegalArgumentException("캠페인을 찾을 수 없습니다"));
+			.orElseThrow(()->new NotFoundException("캠페인"));
 
 		Ballot ballot = new Ballot(
 			ballotCreateRequest.getShares(),

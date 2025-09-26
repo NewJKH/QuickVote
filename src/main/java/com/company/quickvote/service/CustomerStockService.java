@@ -11,6 +11,7 @@ import com.company.quickvote.dto.response.StockResponse;
 import com.company.quickvote.entity.company.Company;
 import com.company.quickvote.entity.customer.Customer;
 import com.company.quickvote.entity.customerstock.CustomerStock;
+import com.company.quickvote.global.exception.NotFoundException;
 import com.company.quickvote.repository.CompanyJPARepository;
 import com.company.quickvote.repository.CustomerJPARepository;
 import com.company.quickvote.repository.StockJPARepository;
@@ -28,10 +29,10 @@ public class CustomerStockService {
 	@Transactional
 	public StockRegisterResponse save(Long customerId, StockRegisterRequest request){
 		Customer customer = customerJPARepository.findById(customerId)
-			.orElseThrow(()->new IllegalArgumentException(" 존재하는 고객이 없습니다. "));
+			.orElseThrow(()->new NotFoundException("고객"));
 
 		Company company = companyJPARepository.findById(request.getCpId())
-			.orElseThrow(()->new IllegalArgumentException(" 존재하는 기업이 없습니다. "));
+			.orElseThrow(()->new NotFoundException("기업"));
 
 		CustomerStock customerStock = new CustomerStock(request.getShares(), customer, company);
 
