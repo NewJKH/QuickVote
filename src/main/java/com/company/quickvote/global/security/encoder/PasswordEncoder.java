@@ -1,17 +1,18 @@
 package com.company.quickvote.global.security.encoder;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
-
-import at.favre.lib.crypto.bcrypt.BCrypt;
 
 @Component
 public class PasswordEncoder {
+
+	private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
 	public String encode(String rawPassword) {
-		return BCrypt.withDefaults().hashToString(BCrypt.MIN_COST, rawPassword.toCharArray());
+		return bCryptPasswordEncoder.encode(rawPassword);
 	}
 
 	public boolean matches(String rawPassword, String encodedPassword) {
-		BCrypt.Result result = BCrypt.verifyer().verify(rawPassword.toCharArray(), encodedPassword);
-		return result.verified;
+		return bCryptPasswordEncoder.matches(rawPassword, encodedPassword);
 	}
 }
