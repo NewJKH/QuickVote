@@ -11,9 +11,13 @@ import com.company.quickvote.dto.response.CampaignResponse;
 import com.company.quickvote.entity.campaign.Campaign;
 import com.company.quickvote.entity.campaign.Status;
 import com.company.quickvote.entity.company.Company;
+import com.company.quickvote.entity.customer.Customer;
 import com.company.quickvote.global.exception.NotFoundException;
+import com.company.quickvote.global.security.auth.Auth;
 import com.company.quickvote.repository.CampaignJPARepository;
 import com.company.quickvote.repository.CompanyJPARepository;
+import com.company.quickvote.repository.CustomerJPARepository;
+import com.company.quickvote.repository.StockJPARepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +27,8 @@ public class CampaignService {
 
 	private final CampaignJPARepository campaignJPARepository;
 	private final CompanyJPARepository companyJPARepository;
+	private final StockJPARepository stockJPARepository;
+	private final CustomerJPARepository customerJPARepository;
 
 	@Transactional(readOnly = true)
 	public List<CampaignResponse> findAll() {
@@ -32,7 +38,6 @@ public class CampaignService {
 				campaign.getTitle(),
 				campaign.getCompany().getId(),
 				campaign.getCompany().getName(),
-				campaign.getStatus(),
 				campaign.getStartAt(),
 				campaign.getEndAt()))
 			.toList();
@@ -43,41 +48,43 @@ public class CampaignService {
 		Campaign campaign = campaignJPARepository.findById(campaignId)
 			.orElseThrow(()->new NotFoundException("캠페인"));
 
-		return new CampaignResponse(
-			campaign.getId(),
-			campaign.getTitle(),
-			campaign.getCompany().getId(),
-			campaign.getCompany().getName(),
-			campaign.getStatus(),
-			campaign.getStartAt(),
-			campaign.getEndAt()
-		);
+		return CampaignResponse.from(campaign);
 	}
 
 	@Transactional
-	public CampaignResponse save(CampaignCreateRequest request) {
+	public CampaignResponse save(Auth auth, CampaignCreateRequest request) {
+		Customer proposer = customerJPARepository.findById(auth.id())
+			.orElseThrow(()->new NotFoundException("회원"));
+
 		Company company = companyJPARepository.findById(request.getCompanyId())
 			.orElseThrow(()->new NotFoundException("기업"));
 
-		Campaign campaign = new Campaign(
-			request.getTitle(),
-			request.getDescription(),
-			request.getStartDate(),
-			request.getEndDate(),
-			Status.CLOSE,
-			company
-		);
+		Campaign campaign = Campaign.builder()
+			.title(request.getTitle())
+			.description(request.getDescription())
+			.startAt(request.getStartDate())
+			.endAt(request.getEndDate())
+			.status(Status.CLOSE)
+			.company(company)
+			.customer(proposer)
+			.build();
 
 		campaignJPARepository.save(campaign);
 
-		return new CampaignResponse(
-			campaign.getId(),
-			campaign.getTitle(),
-			campaign.getCompany().getId(),
-			campaign.getCompany().getName(),
-			campaign.getStatus(),
-			campaign.getStartAt(),
-			campaign.getEndAt()
-		);
+		return CampaignResponse.from(campaign);
+	}
+
+	@Transactional(readOnly = true)
+	public List<CampaignResponse> findAvailableCampaignsByCustomerId(Auth auth) {
+		List<Long> companies = stockJPARepository.findCompanyIdsByCustomerId(auth.id());
+
+		if (companies.isEmpty()) {
+			return List.of();
+		}
+
+		return campaignJPARepository.findByCompanyIdInAndStatus(companies, Status.OPEN)
+			.stream()
+			.map(CampaignResponse::from)
+			.toList();
 	}
 }

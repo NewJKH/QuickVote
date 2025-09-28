@@ -25,7 +25,6 @@ public class JwtUtil {
 	private static final Pattern BEARER_PATTERN = Pattern.compile("^Bearer\\s+[A-Za-z0-9-_.]+$");
 
 	private static final long ACCESS_TOKEN_TIME = 60 * 60 * 1000L;
-	private static final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000L;
 	private static final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 	@Value("${jwt.secret.key}")
 	private String secretKey;
@@ -49,17 +48,6 @@ public class JwtUtil {
 			.claim("nickname", auth.nickname())
 			.claim("role", auth.role().name())
 			.setExpiration(new Date(date.getTime() + ACCESS_TOKEN_TIME))
-			.setIssuedAt(date)
-			.signWith(key, signatureAlgorithm)
-			.compact();
-	}
-
-	public String createRefreshToken(Long userId) {
-		Date date = new Date();
-
-		return Jwts.builder()
-			.setSubject(String.valueOf(userId))
-			.setExpiration(new Date(date.getTime() + REFRESH_TOKEN_TIME))
 			.setIssuedAt(date)
 			.signWith(key, signatureAlgorithm)
 			.compact();
