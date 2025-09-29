@@ -1,6 +1,7 @@
 package com.company.quickvote.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,6 @@ public interface StockJPARepository extends JpaRepository<CustomerStock, Long> {
 		+ "FROM CustomerStock cs "
 		+ "WHERE cs.customer.id = :customerId")
 	List<Long> findCompanyIdsByCustomerId(@Param("customerId") Long customerId);
+
+	Optional<CustomerStock> findByCustomerIdAndCompanyId(Long id, Long companyId);
 }

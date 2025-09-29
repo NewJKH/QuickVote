@@ -39,10 +39,10 @@ public class BallotController {
 		@ApiResponse(responseCode = "200", description = "성공적으로 기업이 조회되었습니다."),
 	})
 	@PostMapping("/ballots")
-	public ResponseEntity<BallotCreateResponse> save(@Valid @RequestBody BallotCreateRequest request){
+	public ResponseEntity<BallotCreateResponse> save(@Valid @RequestBody BallotCreateRequest request, @AuthenticationPrincipal Auth auth) {
 		return ResponseEntity
 			.status(201)
-			.body(ballotService.save(request));
+			.body(ballotService.save(request,auth));
 	}
 
 	@Operation(summary = "내 투표 조회", description = "투표 및 위임 내역 확인합니다.")

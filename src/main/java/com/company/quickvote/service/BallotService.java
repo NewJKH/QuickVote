@@ -13,10 +13,13 @@ import com.company.quickvote.dto.response.BallotVoteResponse;
 import com.company.quickvote.entity.ballot.Ballot;
 import com.company.quickvote.entity.campaign.Campaign;
 import com.company.quickvote.entity.campaign.Status;
+import com.company.quickvote.entity.customerstock.CustomerStock;
+import com.company.quickvote.global.exception.BusinessException;
 import com.company.quickvote.global.exception.NotFoundException;
 import com.company.quickvote.global.security.auth.Auth;
 import com.company.quickvote.repository.BallotJPARepository;
 import com.company.quickvote.repository.CampaignJPARepository;
+import com.company.quickvote.repository.StockJPARepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,26 +29,41 @@ public class BallotService {
 
 	private final BallotJPARepository ballotJPARepository;
 	private final CampaignJPARepository campaignJPARepository;
+	private final StockJPARepository customerStockJPARepository;
 
 	@Transactional
-	public BallotCreateResponse save(BallotCreateRequest request) {
+	public BallotCreateResponse save(BallotCreateRequest request, Auth auth) {
+
 		Campaign campaign = campaignJPARepository.findById(request.getCampaignId())
 			.orElseThrow(() -> new NotFoundException("캠페인"));
 
-		// TODO: shares 검증, 중복투표 검증 필요
+		Long companyId = campaign.getCompany().getId();
 
-		Ballot ballot = new Ballot(
-			request.getShares(),
-			request.getVoteType(),
-			request.getVoteChoice(),
-			request.getDelegateId(),
-			campaign
-		);
+		// 보유 주식 확인
+		CustomerStock stock = customerStockJPARepository.findByCustomerIdAndCompanyId(auth.id(), companyId)
+			.orElseThrow(() -> new NotFoundException("기업"));
 
-		Ballot saved = ballotJPARepository.save(ballot); // ✅ 실제 저장 필요
+		if (request.getShares() <= 0 || request.getShares() > stock.getShares()) {
+			throw new BusinessException("보유 주식 수를 초과하는 투표는 불가능합니다.");
+		}
+
+		// 중복 투표 확인
+		boolean exists = ballotJPARepository.existsByCustomerIdAndCampaignId(auth.id(), request.getCampaignId());
+		if (exists) {
+			throw new BusinessException("이미 해당 캠페인에 투표했습니다.");
+		}
+
+		Ballot ballot = Ballot.builder()
+			.shares(request.getShares())
+			.voteType(request.getVoteType())
+			.voteChoice(request.getVoteChoice())
+			.delegateToId(request.getDelegateId())
+			.customer(stock.getCustomer())
+			.build();
+
+		Ballot saved = ballotJPARepository.save(ballot);
 		return new BallotCreateResponse(saved.getId());
 	}
-
 
 	public Boolean delete(long ballotId) {
 		this.ballotJPARepository.deleteById(ballotId);
@@ -56,7 +74,7 @@ public class BallotService {
 	public List<BallotResponse> findByMe(Auth auth) {
 		return ballotJPARepository.findAll()
 			.stream()
-			.filter(ballot -> ballot.getCustomer().getId()==auth.id())
+			.filter(ballot -> ballot.getCustomer().getId() == auth.id())
 			.map(BallotResponse::from)
 			.toList();
 	}
