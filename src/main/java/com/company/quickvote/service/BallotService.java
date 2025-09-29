@@ -28,20 +28,24 @@ public class BallotService {
 	private final CampaignJPARepository campaignJPARepository;
 
 	@Transactional
-	public BallotCreateResponse save(BallotCreateRequest ballotCreateRequest) {
+	public BallotCreateResponse save(BallotCreateRequest request) {
+		Campaign campaign = campaignJPARepository.findById(request.getCampaignId())
+			.orElseThrow(() -> new NotFoundException("캠페인"));
 
-		Campaign campaign = campaignJPARepository.findById(ballotCreateRequest.getCampaignId())
-			.orElseThrow(()->new NotFoundException("캠페인"));
+		// TODO: shares 검증, 중복투표 검증 필요
 
 		Ballot ballot = new Ballot(
-			ballotCreateRequest.getShares(),
-			ballotCreateRequest.getVoteType(),
-			ballotCreateRequest.getVoteChoice(),
-			ballotCreateRequest.getDelegateId(),
+			request.getShares(),
+			request.getVoteType(),
+			request.getVoteChoice(),
+			request.getDelegateId(),
 			campaign
 		);
-		return new BallotCreateResponse(ballot.getId());
+
+		Ballot saved = ballotJPARepository.save(ballot); // ✅ 실제 저장 필요
+		return new BallotCreateResponse(saved.getId());
 	}
+
 
 	public Boolean delete(long ballotId) {
 		this.ballotJPARepository.deleteById(ballotId);
