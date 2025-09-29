@@ -24,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -60,6 +61,7 @@ public class Ballot {
 	@Column(name = "blt_delegated_to")
 	private long delegateToId;
 
+	@Setter
 	@Column(nullable = false, name = "blt_revoked")
 	private boolean revoked = false;
 

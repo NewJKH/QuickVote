@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,9 +56,11 @@ public class BallotController {
 	}
 
 
-	@DeleteMapping("/ballots/{ballotId}")
-	public Boolean delete(@PathVariable("ballotId") long ballotId){
-		return ballotService.delete(ballotId);
+	@Operation(summary = "투표 철회", description = "본인의 투표를 철회합니다.")
+	@PostMapping("/ballots/{ballotId}/revoke")
+	public ResponseEntity<Void> revokeBallot(@AuthenticationPrincipal Auth auth, @PathVariable Long ballotId) {
+		ballotService.revoke(ballotId, auth);
+		return ResponseEntity.noContent().build();
 	}
 
 	@Operation(summary = "투표 가능 여부확인", description = "현재 투표또는 위임이 가능한지 여부 입니다.")
@@ -67,11 +68,13 @@ public class BallotController {
 		@ApiResponse(responseCode = "200", description = "성공적으로 조회되었습니다."),
 	})
 	@GetMapping("/ballots/{campaignId}/status")
-	public ResponseEntity<BallotVoteResponse> isVote(@AuthenticationPrincipal Auth auth, @PathVariable Long campaignId){
+	public ResponseEntity<BallotVoteResponse> canVote(@AuthenticationPrincipal Auth auth, @PathVariable Long campaignId){
 		return ResponseEntity
 			.status(200)
-			.body(ballotService.isVote(auth, campaignId));
+			.body(ballotService.canVote(auth, campaignId));
 	}
+
+
 
 
 }
