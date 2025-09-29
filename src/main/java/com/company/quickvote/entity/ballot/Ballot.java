@@ -18,6 +18,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,6 +28,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(
+	name = "ballot",
+	uniqueConstraints = {
+		@UniqueConstraint(columnNames = {"ctm_id", "cam_id"})
+	}
+)
 public class Ballot {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
