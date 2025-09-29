@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -51,6 +52,7 @@ public class Campaign {
 	@Column(nullable = false,name = "cam_updated_at")
 	private LocalDateTime updatedAt;
 
+	@Setter
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false,name = "cam_status")
 	private Status status;

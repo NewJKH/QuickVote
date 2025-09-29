@@ -12,8 +12,10 @@ import com.company.quickvote.entity.campaign.Campaign;
 import com.company.quickvote.entity.campaign.Status;
 import com.company.quickvote.entity.company.Company;
 import com.company.quickvote.entity.customer.Customer;
+import com.company.quickvote.global.exception.ForbiddenException;
 import com.company.quickvote.global.exception.NotFoundException;
 import com.company.quickvote.global.security.auth.Auth;
+import com.company.quickvote.repository.BallotJPARepository;
 import com.company.quickvote.repository.CampaignJPARepository;
 import com.company.quickvote.repository.CompanyJPARepository;
 import com.company.quickvote.repository.CustomerJPARepository;
@@ -29,6 +31,7 @@ public class CampaignService {
 	private final CompanyJPARepository companyJPARepository;
 	private final StockJPARepository stockJPARepository;
 	private final CustomerJPARepository customerJPARepository;
+	private final BallotJPARepository ballotJPARepository;
 
 	@Transactional(readOnly = true)
 	public List<CampaignResponse> findAll() {
@@ -87,4 +90,28 @@ public class CampaignService {
 			.map(CampaignResponse::from)
 			.toList();
 	}
+
+	@Transactional
+	public CampaignResponse changeStatus(Long campaignId, String status, Auth auth) {
+		Campaign campaign = campaignJPARepository.findById(campaignId)
+			.orElseThrow(() -> new NotFoundException("캠페인"));
+
+		// 캠페인 제안자만 상태 변경 가능
+		if (campaign.getCustomer().getId() != auth.id()) {
+			throw new ForbiddenException("캠페인 생성자만 상태를 변경할 수 있습니다.");
+		}
+
+		Status newStatus;
+		try {
+			newStatus = Status.valueOf(status.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException("유효하지 않은 상태 값입니다. (OPEN, CLOSE 가능)");
+		}
+
+		// 상태 변경 로직
+		campaign.setStatus(newStatus);
+
+		return CampaignResponse.from(campaign);
+	}
+
 }
