@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "고객/유저", description = "유저 API")
@@ -33,7 +34,7 @@ public class CustomerController {
 		@ApiResponse(responseCode = "201", description = "성공적으로 계정이 생성되었습니다."),
 	})
 	@PostMapping("/users/signup")
-	public ResponseEntity<CustomerSignUpResponse> sign(@RequestBody CustomerSignUpRequest request){
+	public ResponseEntity<CustomerSignUpResponse> sign(@Valid @RequestBody CustomerSignUpRequest request){
 		return ResponseEntity
 			.status(201)
 			.body(customerService.signup(request));
@@ -44,7 +45,7 @@ public class CustomerController {
 		@ApiResponse(responseCode = "200", description = "성공적으로 계정이 생성되었습니다."),
 	})
 	@PostMapping("/users/login")
-	public ResponseEntity<CustomerLoginResponse> login(@RequestBody CustomerLoginRequest request){
+	public ResponseEntity<CustomerLoginResponse> login(@Valid @RequestBody CustomerLoginRequest request){
 		return ResponseEntity
 			.status(200)
 			.body(customerService.login(request));

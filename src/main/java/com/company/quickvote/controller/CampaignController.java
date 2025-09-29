@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "캠페인", description = "캠페인 API")
@@ -67,7 +68,7 @@ public class CampaignController {
 		@ApiResponse(responseCode = "201", description = "성공적으로 캠페인이 생성 되었습니다."),
 	})
 	@PostMapping("/campaigns")
-	public ResponseEntity<CampaignResponse> createCampaign(@AuthenticationPrincipal Auth auth, @RequestBody CampaignCreateRequest request){
+	public ResponseEntity<CampaignResponse> createCampaign(@AuthenticationPrincipal Auth auth, @Valid @RequestBody CampaignCreateRequest request){
 		return ResponseEntity
 			.status(201)
 			.body(campaignService.save(auth, request));

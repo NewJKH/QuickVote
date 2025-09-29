@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "고객 주식", description = "고객 주식 API")
@@ -35,7 +36,7 @@ public class CustomerStockController {
 		@ApiResponse(responseCode = "201", description = "성공적으로 주식을 등록했습니다."),
 	})
 	@PostMapping("/customers/{customerId}/stocks")
-	public ResponseEntity<StockRegisterResponse> registerStock(@PathVariable long customerId, @RequestBody StockRegisterRequest request){
+	public ResponseEntity<StockRegisterResponse> registerStock(@PathVariable long customerId,@Valid @RequestBody StockRegisterRequest request){
 		return ResponseEntity
 			.status(201)
 				.body(customerStockService.save(customerId,request));

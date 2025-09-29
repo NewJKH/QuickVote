@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "투표/위임", description = "투표위윔 API")
@@ -38,7 +39,7 @@ public class BallotController {
 		@ApiResponse(responseCode = "200", description = "성공적으로 기업이 조회되었습니다."),
 	})
 	@PostMapping("/ballots")
-	public ResponseEntity<BallotCreateResponse> save(@RequestBody BallotCreateRequest request){
+	public ResponseEntity<BallotCreateResponse> save(@Valid @RequestBody BallotCreateRequest request){
 		return ResponseEntity
 			.status(201)
 			.body(ballotService.save(request));
