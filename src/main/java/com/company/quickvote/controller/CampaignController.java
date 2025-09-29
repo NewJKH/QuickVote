@@ -74,5 +74,19 @@ public class CampaignController {
 			.body(campaignService.save(auth, request));
 
 	}
+	@Operation(summary = "캠페인 상태 전환", description = "캠페인 상태를 OPEN 또는 CLOSE로 전환합니다.")
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "성공적으로 상태가 변경되었습니다."),
+	})
+	@PostMapping("/campaigns/{campaignId}/status/{status}")
+	public ResponseEntity<CampaignResponse> changeCampaignStatus(
+		@PathVariable Long campaignId,
+		@PathVariable String status,
+		@AuthenticationPrincipal Auth auth) {
+		return ResponseEntity
+			.status(200)
+			.body(campaignService.changeStatus(campaignId, status, auth));
+	}
+
 
 }
