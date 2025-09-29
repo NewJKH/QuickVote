@@ -14,6 +14,30 @@ public class GlobalExceptionHandler {
 			.status(404)
 			.body(response);
 	}
+	@ExceptionHandler(ForbiddenException.class)
+	public ResponseEntity<ApiResponse> handleException(ForbiddenException ex) {
+		ApiResponse response = ApiResponse.create(ex.getMessage());
+		return ResponseEntity
+			.status(403)
+			.body(response);
+	}
+
+	@ExceptionHandler(BusinessException.class)
+	public ResponseEntity<ApiResponse> handleException(BusinessException ex) {
+		ApiResponse response = ApiResponse.create(ex.getMessage());
+		return ResponseEntity
+			.status(400)
+			.body(response);
+	}
+
+	@ExceptionHandler(NotMatchedException.class)
+	public ResponseEntity<ApiResponse> handleException(NotMatchedException ex) {
+		ApiResponse response = ApiResponse.create(ex.getMessage());
+		return ResponseEntity
+			.status(400)
+			.body(response);
+	}
+
 
 	public record ApiResponse(String message) {
 		public static ApiResponse create(String message) {
