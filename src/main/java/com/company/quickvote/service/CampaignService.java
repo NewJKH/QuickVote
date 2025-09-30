@@ -15,7 +15,6 @@ import com.company.quickvote.entity.customer.Customer;
 import com.company.quickvote.global.exception.ForbiddenException;
 import com.company.quickvote.global.exception.NotFoundException;
 import com.company.quickvote.global.security.auth.Auth;
-import com.company.quickvote.repository.BallotJPARepository;
 import com.company.quickvote.repository.CampaignJPARepository;
 import com.company.quickvote.repository.CompanyJPARepository;
 import com.company.quickvote.repository.CustomerJPARepository;
@@ -31,7 +30,6 @@ public class CampaignService {
 	private final CompanyJPARepository companyJPARepository;
 	private final StockJPARepository stockJPARepository;
 	private final CustomerJPARepository customerJPARepository;
-	private final BallotJPARepository ballotJPARepository;
 
 	@Transactional(readOnly = true)
 	public List<CampaignResponse> findAll() {
