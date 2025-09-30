@@ -32,5 +32,5 @@ public class BallotCreateRequest {
 
 	@Schema(description = "위임한 아이디", example = "999")
 	@PositiveOrZero(message = "위임 아이디는 0 이상이어야 합니다.")
-	private long delegateId;
+	private Long delegateId;
 }

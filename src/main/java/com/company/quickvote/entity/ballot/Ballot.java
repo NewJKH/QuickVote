@@ -59,7 +59,7 @@ public class Ballot {
 	// type = DELEGATE 만 가능
 	// 위임했다면 누구에게 위임했는가
 	@Column(name = "blt_delegated_to")
-	private long delegateToId;
+	private Long delegateToId;
 
 	@Setter
 	@Column(nullable = false, name = "blt_revoked")
