@@ -23,13 +23,13 @@ import com.company.quickvote.entity.campaign.Campaign;
 import com.company.quickvote.entity.campaign.Status;
 import com.company.quickvote.entity.company.Company;
 import com.company.quickvote.entity.customer.Customer;
-import com.company.quickvote.entity.customerstock.CustomerStock;
+import com.company.quickvote.entity.snapshot.CustomerStockSnapshot;
 import com.company.quickvote.global.exception.BusinessException;
 import com.company.quickvote.global.security.auth.Auth;
 import com.company.quickvote.global.security.auth.Role;
 import com.company.quickvote.repository.BallotJPARepository;
 import com.company.quickvote.repository.CampaignJPARepository;
-import com.company.quickvote.repository.StockJPARepository;
+import com.company.quickvote.repository.StockSnapshotJPARepository;
 
 @ExtendWith(MockitoExtension.class)
 class BallotServiceTest {
@@ -39,7 +39,7 @@ class BallotServiceTest {
 	@Mock
 	CampaignJPARepository campaignJPARepository;
 	@Mock
-	StockJPARepository stockJPARepository;
+	StockSnapshotJPARepository stockSnapshotJPARepository;
 	@InjectMocks
 	BallotService ballotService;
 
@@ -47,7 +47,7 @@ class BallotServiceTest {
 	private Campaign campaign;
 	private Customer customer;
 	private Company company;
-	private CustomerStock stock;
+	private CustomerStockSnapshot snapshot;
 
 	@BeforeEach
 	void setUp() {
@@ -67,7 +67,7 @@ class BallotServiceTest {
 			.endAt(LocalDateTime.now().plusDays(1))
 			.build();
 
-		stock = new CustomerStock(10, customer, company);
+		snapshot = new CustomerStockSnapshot(campaign,customer,10,LocalDateTime.now());
 
 		auth = new Auth(1L, "user@test.com",Role.USER);
 	}
@@ -84,7 +84,7 @@ class BallotServiceTest {
 		);
 
 		when(campaignJPARepository.findById(campaign.getId())).thenReturn(Optional.of(campaign));
-		when(stockJPARepository.findByCustomerIdAndCompanyId(auth.id(), company.getId())).thenReturn(Optional.of(stock));
+		when(stockSnapshotJPARepository.findByCustomerIdAndCampaignId(auth.id(), campaign.getId())).thenReturn(Optional.of(snapshot));
 		when(ballotJPARepository.existsByCustomerIdAndCampaignId(auth.id(), campaign.getId())).thenReturn(false);
 
 		Ballot savedBallot = Ballot.builder()
@@ -119,7 +119,7 @@ class BallotServiceTest {
 		);
 
 		when(campaignJPARepository.findById(campaign.getId())).thenReturn(Optional.of(campaign));
-		when(stockJPARepository.findByCustomerIdAndCompanyId(auth.id(), company.getId())).thenReturn(Optional.of(stock));
+		when(stockSnapshotJPARepository.findByCustomerIdAndCampaignId(auth.id(), campaign.getId())).thenReturn(Optional.of(snapshot));
 		when(ballotJPARepository.existsByCustomerIdAndCampaignId(auth.id(), campaign.getId())).thenReturn(false);
 
 		Ballot savedBallot = Ballot.builder()
@@ -153,7 +153,8 @@ class BallotServiceTest {
 		);
 
 		when(campaignJPARepository.findById(campaign.getId())).thenReturn(Optional.of(campaign));
-		when(stockJPARepository.findByCustomerIdAndCompanyId(auth.id(), company.getId())).thenReturn(Optional.of(stock));
+		when(stockSnapshotJPARepository.findByCustomerIdAndCampaignId(auth.id(), campaign.getId())).thenReturn(Optional.of(snapshot));
+
 
 		// when & then
 		assertThatThrownBy(() -> ballotService.save(request, auth))
@@ -173,7 +174,8 @@ class BallotServiceTest {
 		);
 
 		when(campaignJPARepository.findById(campaign.getId())).thenReturn(Optional.of(campaign));
-		when(stockJPARepository.findByCustomerIdAndCompanyId(auth.id(), company.getId())).thenReturn(Optional.of(stock));
+		when(stockSnapshotJPARepository.findByCustomerIdAndCampaignId(auth.id(), campaign.getId())).thenReturn(Optional.of(snapshot));
+
 		when(ballotJPARepository.existsByCustomerIdAndCampaignId(auth.id(), campaign.getId())).thenReturn(true);
 
 		// when & then
