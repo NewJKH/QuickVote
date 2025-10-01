@@ -50,7 +50,7 @@ public class BallotService {
 		}
 
 		// 보유 주식 확인
-		CustomerStockSnapshot snapshot = stockSnapshotJPARepository.findByCampaignIdAndCustomerId(campaign.getId(), auth.id())
+		CustomerStockSnapshot snapshot = stockSnapshotJPARepository.findByCustomerIdAndCampaignId(auth.id(),campaign.getId())
 			.orElseThrow(() -> new NotFoundException("기준일 당시 보유 주식"));
 
 		if (request.getShares() <= 0 || request.getShares() > snapshot.getStockCount()) {
