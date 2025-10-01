@@ -1,6 +1,8 @@
 package com.company.quickvote.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.springframework.stereotype.Service;
@@ -12,6 +14,8 @@ import com.company.quickvote.entity.campaign.Campaign;
 import com.company.quickvote.entity.campaign.Status;
 import com.company.quickvote.entity.company.Company;
 import com.company.quickvote.entity.customer.Customer;
+import com.company.quickvote.entity.customerstock.CustomerStock;
+import com.company.quickvote.entity.snapshot.CustomerStockSnapshot;
 import com.company.quickvote.global.exception.ForbiddenException;
 import com.company.quickvote.global.exception.NotFoundException;
 import com.company.quickvote.global.security.auth.Auth;
@@ -19,6 +23,7 @@ import com.company.quickvote.repository.CampaignJPARepository;
 import com.company.quickvote.repository.CompanyJPARepository;
 import com.company.quickvote.repository.CustomerJPARepository;
 import com.company.quickvote.repository.StockJPARepository;
+import com.company.quickvote.repository.StockSnapshotJPARepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +35,7 @@ public class CampaignService {
 	private final CompanyJPARepository companyJPARepository;
 	private final StockJPARepository stockJPARepository;
 	private final CustomerJPARepository customerJPARepository;
+	private final StockSnapshotJPARepository stockSnapshotJPARepository;
 
 	@Transactional(readOnly = true)
 	public List<CampaignResponse> findAll() {
@@ -54,26 +60,36 @@ public class CampaignService {
 
 	@Transactional
 	public CampaignResponse save(Auth auth, CampaignCreateRequest request) {
-		Customer proposer = customerJPARepository.findById(auth.id())
-			.orElseThrow(()->new NotFoundException("회원"));
+		Customer customer = customerJPARepository.findById(auth.id())
+			.orElseThrow(() -> new NotFoundException("고객"));
 
 		Company company = companyJPARepository.findById(request.getCompanyId())
-			.orElseThrow(()->new NotFoundException("기업"));
+			.orElseThrow(() -> new NotFoundException("기업"));
 
 		Campaign campaign = Campaign.builder()
 			.title(request.getTitle())
 			.description(request.getDescription())
 			.startAt(request.getStartDate())
 			.endAt(request.getEndDate())
-			.status(Status.CLOSE)
 			.company(company)
-			.customer(proposer)
+			.customer(customer)
 			.build();
 
 		campaignJPARepository.save(campaign);
 
+		createSnapshotsForCampaign(campaign);
+
 		return CampaignResponse.from(campaign);
 	}
+
+	private void createSnapshotsForCampaign(Campaign campaign) {
+		List<CustomerStock> currentStocks = stockJPARepository.findAllByCompany((campaign.getCompany()));
+		List<CustomerStockSnapshot> snapshots = currentStocks.stream()
+			.map(cs -> new CustomerStockSnapshot(campaign, cs.getCustomer(), cs.getShares(), LocalDateTime.now()))
+			.collect(Collectors.toList());
+		stockSnapshotJPARepository.saveAll(snapshots);
+	}
+
 
 	@Transactional(readOnly = true)
 	public List<CampaignResponse> findAvailableCampaignsByCustomerId(Auth auth) {

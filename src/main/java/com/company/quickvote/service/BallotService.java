@@ -13,14 +13,14 @@ import com.company.quickvote.dto.response.BallotVoteResponse;
 import com.company.quickvote.entity.ballot.Ballot;
 import com.company.quickvote.entity.campaign.Campaign;
 import com.company.quickvote.entity.campaign.Status;
-import com.company.quickvote.entity.customerstock.CustomerStock;
+import com.company.quickvote.entity.snapshot.CustomerStockSnapshot;
 import com.company.quickvote.global.exception.BusinessException;
 import com.company.quickvote.global.exception.ForbiddenException;
 import com.company.quickvote.global.exception.NotFoundException;
 import com.company.quickvote.global.security.auth.Auth;
 import com.company.quickvote.repository.BallotJPARepository;
 import com.company.quickvote.repository.CampaignJPARepository;
-import com.company.quickvote.repository.StockJPARepository;
+import com.company.quickvote.repository.StockSnapshotJPARepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,7 +30,7 @@ public class BallotService {
 
 	private final BallotJPARepository ballotJPARepository;
 	private final CampaignJPARepository campaignJPARepository;
-	private final StockJPARepository stockJPARepository;
+	private final StockSnapshotJPARepository stockSnapshotJPARepository;
 
 	/**
 	 * 투표/위임 생성
@@ -50,12 +50,13 @@ public class BallotService {
 		}
 
 		// 보유 주식 확인
-		CustomerStock stock = stockJPARepository.findByCustomerIdAndCompanyId(auth.id(), campaign.getCompany().getId())
-			.orElseThrow(() -> new NotFoundException("보유 주식"));
+		CustomerStockSnapshot snapshot = stockSnapshotJPARepository.findByCampaignIdAndCustomerId(campaign.getId(), auth.id())
+			.orElseThrow(() -> new NotFoundException("기준일 당시 보유 주식"));
 
-		if (request.getShares() <= 0 || request.getShares() > stock.getShares()) {
-			throw new BusinessException("보유 주식 수를 초과하는 투표는 불가능합니다.");
+		if (request.getShares() <= 0 || request.getShares() > snapshot.getStockCount()) {
+			throw new BusinessException("기준일 보유 주식 수를 초과하는 투표는 불가능합니다.");
 		}
+
 
 		// 중복 투표 확인
 		boolean exists = ballotJPARepository.existsByCustomerIdAndCampaignId(auth.id(), campaign.getId());
@@ -68,7 +69,7 @@ public class BallotService {
 			.voteType(request.getVoteType())
 			.voteChoice(request.getVoteChoice())
 			.delegateToId(request.getDelegateId())
-			.customer(stock.getCustomer())
+			.customer(snapshot.getCustomer())
 			.campaign(campaign)
 			.build();
 
