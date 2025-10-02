@@ -4,12 +4,14 @@ import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.company.quickvote.entity.campaign.Campaign;
 import com.company.quickvote.entity.customer.Customer;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -37,6 +39,7 @@ import lombok.Setter;
 		@UniqueConstraint(columnNames = {"ctm_id", "cam_id"})
 	}
 )
+@EntityListeners(AuditingEntityListener.class)
 public class Ballot {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
