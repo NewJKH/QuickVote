@@ -34,9 +34,6 @@ public class BallotService {
 
 	/**
 	 * 투표/위임 생성
-	 * 흐름 설명
-	 * @note 캠페인을 조회 -> 캠페인 상태를 확인한다. ( 현재시간이 시작과 종료 사이인지 확인 ) -> 로그인한 사용자가 해당 회사 주식을 보유 중인지 체크 -> 이미 해당 캠페인에 투표한 이력이 있는지 확인 -> 투표 엔티티 저장
-	 *
 	 */
 	@Transactional
 	public BallotCreateResponse save(BallotCreateRequest request, Auth auth) {
@@ -98,11 +95,7 @@ public class BallotService {
 	 */
 	@Transactional(readOnly = true)
 	public List<BallotResponse> findByMe(Auth auth) {
-		return ballotJPARepository.findAll()
-			.stream()
-			.filter(ballot->ballot.getCustomer().getId()==auth.id())
-			.map(BallotResponse::from)
-			.toList();
+		return ballotJPARepository.findByCustomer_Id(auth.id());
 	}
 
 	/**
