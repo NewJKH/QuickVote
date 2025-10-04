@@ -61,6 +61,11 @@ public class BallotService {
 			throw new BusinessException("이미 해당 캠페인에 투표 또는 위임했습니다.");
 		}
 
+		Long delegateId = request.getDelegateId();
+		if ( !(delegateId != null && delegateId.longValue() == auth.id()) ){
+			throw new BusinessException("본인에게 위임할 수 없습니다.");
+		}
+
 		Ballot ballot = Ballot.builder()
 			.shares(request.getShares())
 			.voteType(request.getVoteType())
